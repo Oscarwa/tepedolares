@@ -18,8 +18,8 @@
 
 <body>
     <main>
-        <div class="container py-4">
-            <header class="pb-3 mb-4 border-bottom">
+        <div class=" py-4">
+            <header class="container pb-3 mb-4 border-bottom">
                 <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
                     <img src="./img/tepi.jpg" width="80">
                     <span class="ms-3 fs-4">Tepe Dollars - Exchange rates</span>
@@ -27,7 +27,13 @@
                 </a>
             </header>
 
-            <div class="p-5 mb-4 bg-light rounded-3">
+            <!-- style="height: 600px; background: url('img/festisite_us_dollar_10.png'); background-size: cover; background-repeat: no-repeat;" -->
+            <div class="container"
+             >
+            <img alt="tepedolar" src="img/festisite_us_dollar_10.png" style="width: 100%; height: auto;"/>
+            </div>
+
+            <div class="container p-5 mb-4 bg-light rounded-3">
                 <div class="container-fluid py-5">
                     <h1 class="display-5 fw-bold">Today's rate</h1>
                     <p class="col-md-8 fs-1">1 Tepe dollar = <span id="rate">8</span> MXN</p>
@@ -39,21 +45,24 @@
                 </div>
             </div>
 
-            <div class="row align-items-md-stretch">
-                <div class="col-md-12">
-                    <div class="h-100 p-5 bg-light border rounded-3">
-                        <!-- <h2>Add borders</h2>
-                        <p>Or, keep it light and add a border for some added definition to the boundaries of your
-                            content. Be sure to look under the hood at the source HTML here as we've adjusted the
-                            alignment and sizing of both column's content for equal-height.</p>
-                        <button class="btn btn-outline-secondary" type="button">Example button</button> -->
-                        <canvas id="chart"></canvas>
+            <div class="container">
+
+                <div class="row align-items-md-stretch">
+                    <div class="col-md-12">
+                        <div class="h-100 p-5 bg-light border rounded-3">
+                            <!-- <h2>Add borders</h2>
+                            <p>Or, keep it light and add a border for some added definition to the boundaries of your
+                                content. Be sure to look under the hood at the source HTML here as we've adjusted the
+                                alignment and sizing of both column's content for equal-height.</p>
+                            <button class="btn btn-outline-secondary" type="button">Example button</button> -->
+                            <canvas id="chart"></canvas>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <footer class="pt-3 mt-4 text-muted border-top">
-                &copy; 2022
+                &copy; 2023
             </footer>
         </div>
     </main>
@@ -67,45 +76,49 @@
         return todayStart;
     }
 
-    const currentYear = new Date().getFullYear()
-    const janFirst = new Date(currentYear, 0, 1)
+    let today = new Date()
+    // today = new Date("2024-12-31")
 
     const getRate = (date) => {
         const d = startOfDay(date);
+        const currentYear = d.getFullYear()
+        const janFirst = new Date(currentYear, 0, 1)
 
         const day = d.getDate();
         const week = Math.ceil((((d.getTime() - janFirst.getTime()) / 86400000) + janFirst.getDay() + 1) / 7);
         const weekDay = d.getDay();
         const month = d.getMonth();
         //return ((month / week) % (weekDay + 1)) * (weekDay * (day))
-        return Math.cos(month) + Math.tan(50 * (weekDay % 3)) + Math.abs(week * (month + 1) * Math.sin(day) % (weekDay + 1 * (100)));
-
+        // return (25 + (month * 2) + Math.abs(Math.cos(weekDay) * 15) + Math.abs(Math.tan(50 * (weekDay % 3))) + Math.abs(weekDay * ((month) + 1) * day % (weekDay + 1 * (70)))) * 1.5;
+        // return (25 + (month * 2) + Math.abs(Math.cos(weekDay) * 15) + Math.abs(Math.tan(50 * (weekDay % 3))) + Math.abs((weekDay) * ((month) + 1) * day % (weekDay + 1 * (70)))) * 1.5;
+        // return 15 + Math.abs(Math.sin(weekDay + day)) * Math.log(month + weekDay + 1) * Math.log(week) * 10;
+        return (25 + Math.abs(Math.pow(week, 2) + (Math.cos(weekDay + day) * 100)) / 10) % 350
         // const daySeed = d.getTime() / 10000;
         // return daySeed % 1000;
     }
 
 
     const timeEl = document.getElementById("time");
-    timeEl.textContent = startOfDay(new Date).toLocaleDateString()
+    timeEl.textContent = startOfDay(today).toLocaleDateString()
 
     const rateEl = document.getElementById("rate");
-    rateEl.textContent = new Intl.NumberFormat("es-MX", { style: 'currency', currency: 'MXN' }).format(getRate(new Date));
+    rateEl.textContent = new Intl.NumberFormat("es-MX", { style: 'currency', currency: 'MXN' }).format(getRate(today));
 
-    const maxRateDate = "2022/09/24"
+    const maxRateDate = "2022-12-31T23:59:59"
     const maxRateEl = document.getElementById('maxrate');
     const maxRate = new Intl.NumberFormat("es-MX", { style: 'currency', currency: 'MXN' }).format(getRate(maxRateDate));
     maxRateEl.textContent = `${maxRate} MXN on ${startOfDay(maxRateDate).toLocaleDateString()}`
 
 
-    const DAYS_HISTORY = 30;
+    const DAYS_HISTORY = 7;
     const result = []
     for (let x = DAYS_HISTORY; x > 0; x--) {
-        const currentDate = new Date().setDate(new Date().getDate() - x)
+        const currentDate = new Date(today.getTime()).setDate(today.getDate() - x)
         const date = startOfDay(currentDate)
         const rate = getRate(date)
         result.push({ date: date.toLocaleDateString(), rate })
     }
-    result.push({ date: startOfDay(new Date).toLocaleDateString(), rate: getRate(new Date) })
+    result.push({ date: startOfDay(today).toLocaleDateString(), rate: getRate(today) })
     console.info(result);
 
     const data = {
